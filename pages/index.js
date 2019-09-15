@@ -7,7 +7,6 @@ import { Search } from "semantic-ui-react";
 
 const getusers = () => axios.get('https://jsonplaceholder.typicode.com/users');
 
-
 const handleClicksecond = () => Router.push({
   pathname: '/second'
 })
@@ -42,19 +41,23 @@ const handleSubmit = (e) => {
 }
 
 const Index = () => {
-  let [users, setusers] = useState({})
+  const [users, setUsers] = useState([])
+  
 
   useEffect(() => {
     getusers().then(response => {
-      users = response.data
-      console.log(users)
+      setUsers(response.data)
     })
   }, []);
 
-  const resRender = ({ name, phone }) => (
-    <span key="name">
-      {name} is {phone} yo
-    </span>
+  const resRender = () => (
+    <div>
+        {users.map(item => (
+          <p key={item.name}>
+            {item.name}: {item.name}
+          </p>
+        ))}
+    </div>
   );
 
   return (
@@ -75,6 +78,15 @@ const Index = () => {
       <button type="submit">Go</button>
     </form>
     <br/>
+
+    <ul>
+        {users.map(item => (
+          <li key={item.username}>
+            {item.username}: {item.name}
+          </li>
+        ))}
+    </ul>
+    
     <Search
         fluid
         icon="search"
