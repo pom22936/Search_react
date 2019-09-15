@@ -1,94 +1,57 @@
-import React, { useReducer, useEffect } from 'react';
-import axios from 'axios';
+import React,{useState,useEffect} from 'react';
+import Head from 'next/head'
+import { Search } from "semantic-ui-react";
 
-const fetchCat = () => axios.get('https://aws.random.cat/meow');
-
-const initialState = {
-  isFetching: false,
-  cat: {},
-  count: 0
-}
-
-const reducer = (state, { type, payload }) => {
-  switch(type) {
-    case 'FETCH_CAT_PENDING':
-      return {
-        ...state,
-        isFetching: true
-      }
-    case 'FETCH_CAT_SUCCESS':
-      return {
-        ...state,
-        isFetching: false,
-        cat: payload
-      }
-    case 'COUNTER_CLICK':
-      return {
-        ...state,
-        isFetching: false,
-        count: payload
-      }
-    default:
-      return state
+let state = {
+  users: {
+    isLoaded: false,
+    data: []
   }
 }
 
-const App = () => {
-  const [{ cat, isFetching, count }, dispatch] = useReducer(reducer, initialState);
+function App() {
 
-  useEffect(() => {
-    dispatch({
-      type: 'FETCH_CAT_PENDING'
-    })
+  let [users,setusers] = useState([])
+  let [search,setsearch] = useState({data: []})
 
-    fetchCat().then(response => {
-      dispatch({
-        type: 'FETCH_CAT_SUCCESS',
-        payload: response.data
+  useEffect(()=>{
+
+    if(!state.users.isLoaded){
+      fetch("https://jsonplaceholder.typicode.com/users")
+      .then(res => res.json())
+      .then(res => {
+        let data = res.map(res => {
+          return {
+            title: res.name
+          }
+        })
+
+        setusers(data)
+        state.users.data = data;
+        state.users.isLoaded = true;
       })
-    })
+    }
+  });
 
-  }, []);
-
-  if (isFetching) {
-    return <p>Loading....</p>
+  let handleChange = (e) => {
+    let value = e.target.value;
+    if(value)
+      setsearch({data: users.filter(res => res.title.includes(value))})
+    else
+      setsearch({data: users})
   }
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-
-        <p>
-        You click {count} times
-        </p>
-
-        <button
-          style={{
-            padding: '8px 16px',
-            borderRadius: 4,
-            fontSize: '1.25rem'
-          }}
-          onClick={() => {
-            dispatch({
-              type: 'COUNTER_CLICK',
-              payload: count + 1
-            })
-          }}
-        >
-          Click me
-        </button>
-
-        <p>
-        {cat.file}
-        </p> 
-        <p>
-          <img src={cat && cat.file} alt="Cat" width="256" />
-        </p>
-
-      </header>
+    
+    <div>
+        <Head>
+    <title>test</title>
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css" />
+  </Head>
+        <Search
+          onSearchChange={handleChange}
+          results={search.data}
+        />
     </div>
   );
 }

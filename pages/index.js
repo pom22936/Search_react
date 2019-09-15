@@ -7,6 +7,13 @@ import { Search } from "semantic-ui-react";
 
 const getusers = () => axios.get('https://jsonplaceholder.typicode.com/users');
 
+let states = {
+  users : {
+    isLoaded: false,
+    data: []
+  }
+}
+
 const handleClicksecond = () => Router.push({
   pathname: '/second'
 })
@@ -40,25 +47,48 @@ const handleSubmit = (e) => {
   })
 }
 
-const Index = () => {
-  const [users, setUsers] = useState([])
-  
 
+const Index = () => {
+  let [users, setUsers] = useState([])
+  let [search,setsearch] = useState({data: []})
+  
   useEffect(() => {
-    getusers().then(response => {
-      setUsers(response.data)
-    })
+    if(!states.users.isLoader){  
+        getusers().then(res => {
+            // setUsers(response.data.map(res => {
+            //     return {
+            //         title: res.name
+            //     }
+            // }))
+            let data = res.data.map(res => {
+              return {
+                title: res.name
+              }
+            })
+
+            setUsers(data)
+            states.users.data = data;
+            states.users.isLoaded = true;
+            
+        })
+    }
   }, []);
 
-  const resRender = () => (
-    <div>
-        {users.map(item => (
-          <p key={item.name}>
-            {item.name}: {item.name}
-          </p>
-        ))}
-    </div>
-  );
+  let handleChange = (e) => {
+    let value = e.target.value;
+    if(value)
+      setsearch({data: users.filter(res => res.title.includes(value))})
+    else
+      setsearch({data: users})
+  }
+
+  // const resRender = () => (
+  //   <div>
+  //       {users.map(item => (
+  //         <p>{item.title}</p>
+  //       ))}
+  //   </div>
+  // );
 
   return (
   <div>
@@ -79,20 +109,20 @@ const Index = () => {
     </form>
     <br/>
 
-    <ul>
+    {/* <ul>
         {users.map(item => (
-          <li key={item.username}>
-            {item.username}: {item.name}
+          <li>
+            {item.title}
           </li>
         ))}
-    </ul>
+    </ul> */}
     
     <Search
         fluid
         icon="search"
         placeholder="Search..."
-        results={users}
-        resultRenderer={resRender}
+        onSearchChange={handleChange}
+        results={search.data}
       />
   </div>
   )
