@@ -1,13 +1,18 @@
-import {withRouter} from 'next/router'
-import CKEditor from '@ckeditor/ckeditor5-react';
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import { withRouter } from 'next/router'
 import axios from 'axios';
 import { Form } from "semantic-ui-react";
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head'
 
+import dynamic from "next/dynamic";
+
+
 const handleClickIndex = () => Router.push({
   pathname: '/'
+})
+
+const CKEditor = dynamic(() => import('../components/CKEditor'), {
+  ssr: false
 })
 
 const style = {
@@ -41,27 +46,27 @@ const handleSubmit = (e) => {
     email: email,
     phone: phone
   }
-  
+
   const options = {
     headers: {
-        'Content-Type': 'application/json',
+      'Content-Type': 'application/json',
     }
   };
-  
+
   axios.post('https://jsonplaceholder.typicode.com/posts', formdata, options)
-   .then((res) => {
-     console.log("RESPONSE ==== : ", res);
-   })
-   .catch((err) => {
-     console.log("ERROR: ====", err);
-   })
+    .then((res) => {
+      console.log("RESPONSE ==== : ", res);
+    })
+    .catch((err) => {
+      console.log("ERROR: ====", err);
+    })
 
 
 }
 
 const Index = (props) => {
   let [data, setData] = useState([])
-  const {router :{query : {name}}} = props
+  const { router: { query: { name } } } = props
   const getdata = async () => await axios.get(`https://jsonplaceholder.typicode.com/users/?name=` + name)
 
   useEffect(() => {
@@ -91,7 +96,7 @@ const Index = (props) => {
         test : {JSON.stringify(data)}
       </div> */}
       <div>
-        {data.map((item,index) => (
+        {data.map((item, index) => (
           <div key={index}>
             <Form onSubmit={(e) => handleSubmit(e)}>
               <Form.Group>
@@ -121,24 +126,7 @@ const Index = (props) => {
       </div>
 
       <br />
-      <CKEditor
-        editor={ClassicEditor}
-        data="<p>Hello from CKEditor 5!</p>"
-        onInit={editor => {
-          // You can store the "editor" and use when it is needed.
-          console.log('Editor is ready to use!', editor);
-        }}
-        onChange={(event, editor) => {
-          const data = editor.getData();
-          console.log({ event, editor, data });
-        }}
-        onBlur={(event, editor) => {
-          console.log('Blur.', editor);
-        }}
-        onFocus={(event, editor) => {
-          console.log('Focus.', editor);
-        }}
-      />
+      <CKEditor/>
     </div>
   )
 }
