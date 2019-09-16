@@ -114,6 +114,7 @@ const Index = () => {
             placeholder='Name'
             name='name'
           /> */}
+
           <Search
             fluid
             icon="search"
